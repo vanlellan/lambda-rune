@@ -10,6 +10,7 @@ class NodeRing(object):
         self.expression = expression
         self.nodes = []
         self.parseExpression()
+        self.links = []
 
     def parseExpression(self):
         chars = list(self.expression)
@@ -18,6 +19,13 @@ class NodeRing(object):
             ang = -np.pi/2 + i*2*np.pi/len(chars)
             nodes.append(Node(ang, self.r, self, char))
         self.nodes = nodes
+
+    def linkToOther(self, other):
+        for self_node in self.nodes:
+            for other_node in other.nodes:
+                if self_node.expression == other_node.expression:
+                    self.links.append((self_node, other_node))
+        return self.links
 
 
 class Node(object):
@@ -55,9 +63,14 @@ class Rune(object):
         apothem = self.r * np.cos(np.pi / len(self.head.nodes))
         self.body = Body(self.cx, self.cy, apothem, expression.split('.')[1])
 
+        self.links = self.head.linkToOther(self.body)
+
     def draw(self):
         self.head.draw(self.svg)
         self.body.draw(self.svg)
+        for link in self.links:
+#            self.svg.Arc(*link, 2, flip=True)
+            self.svg.Arc(*link, 2)
 
 
 class SVG(object):
@@ -76,6 +89,10 @@ class SVG(object):
     def Poly(self, nodes, sw):
         ptstr = " ".join(["{},{}".format(n.cx, n.cy) for n in nodes])
         self.lines.append('<polygon points="{}" fill="none" stroke="black" stroke-width="{}"/>\n'.format(ptstr, sw))
+
+    def Arc(self, nodeA, nodeB, sw, flip=False):
+        d = np.sqrt((nodeB.cx - nodeA.cx)**2 + (nodeB.cy - nodeA.cy)**2)/1.5
+        self.lines.append('<path d="M {} {} A {} {} 0 0 {} {} {}" stroke-width="{}" stroke="black" fill="none"/>\n'.format(nodeA.cx, nodeA.cy, d, d, int(flip), nodeB.cx, nodeB.cy, sw))
 
     def write(self):
         with open(self.outfile, 'w') as f:
