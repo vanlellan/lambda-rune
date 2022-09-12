@@ -33,9 +33,12 @@ class Node(object):
         self.th = th
         self.r = r
         self.parent = parent
-        self.cx = parent.cx + self.r * np.cos(self.th)
-        self.cy = parent.cy + self.r * np.sin(self.th)
         self.expression = expression
+        self.calculateXY()
+
+    def calculateXY(self):
+        self.cx = self.parent.cx + self.r * np.cos(self.th)
+        self.cy = self.parent.cy + self.r * np.sin(self.th)
 
 
 class Head(NodeRing):
@@ -46,7 +49,11 @@ class Head(NodeRing):
 
 
 class Body(NodeRing):
-    def draw(self, svg):
+    def draw(self, svg, offset=False):
+        if offset:
+            for node in self.nodes:
+                node.th += np.pi / len(self.nodes)
+                node.calculateXY()
         svg.Circ(self.cx, self.cy, self.r, 3) # Body circ
         svg.Poly(self.nodes, 1) # Inscribed polygon
 
@@ -67,43 +74,17 @@ class Rune(object):
 
     def draw(self):
         self.head.draw(self.svg)
-        self.body.draw(self.svg)
+        self.body.draw(self.svg, offset=True)
         for link in self.links:
-#            self.svg.Arc(*link, 3, flip=True)
-            self.svg.Arc(*link, 3)
+            self.svg.Arc(*link, 3, flip=True)
+#            self.svg.Arc(*link, 3)
 
-
-class SVG(object):
-    def __init__(self, outfile, width, height):
-        self.outfile = outfile
-        self.width = width
-        self.height = height
-        self.lines = []
-        self.lines.append('<svg width="{}" height="{}">\n'.format(self.width, self.height))
-        self.lines.append('<rect fill="white" stroke="black" x="0" y="0" width="{}" height="{}" />\n'.format(self.width, self.height))
-        self.center = (self.width/2, self.height/2)
-
-    def Circ(self, cx, cy, r, sw):
-        self.lines.append('<circle cx="{}" cy="{}" r="{}" stroke-width="{}" stroke="black" fill="white"/>\n'.format(cx, cy, r, sw))
-
-    def Poly(self, nodes, sw):
-        ptstr = " ".join(["{},{}".format(n.cx, n.cy) for n in nodes])
-        self.lines.append('<polygon points="{}" fill="none" stroke="black" stroke-width="{}"/>\n'.format(ptstr, sw))
-
-    def Arc(self, nodeA, nodeB, sw, flip=False):
-        d = np.sqrt((nodeB.cx - nodeA.cx)**2 + (nodeB.cy - nodeA.cy)**2)
-        self.lines.append('<path d="M {} {} A {} {} 0 0 {} {} {}" stroke-width="{}" stroke="black" fill="none"/>\n'.format(nodeA.cx, nodeA.cy, d, d, int(flip), nodeB.cx, nodeB.cy, sw))
-
-    def write(self):
-        with open(self.outfile, 'w') as f:
-            for line in self.lines:
-                f.write(line)
-            f.write('</svg>')
 
 if __name__ == "__main__":
     import argparse
     import subprocess
     import time
+    from svgutils import SVG
 
     parser = argparse.ArgumentParser()
     parser.add_argument('expression', type=str)
