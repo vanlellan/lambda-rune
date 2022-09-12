@@ -69,8 +69,8 @@ class Rune(object):
         self.head.draw(self.svg)
         self.body.draw(self.svg)
         for link in self.links:
-#            self.svg.Arc(*link, 2, flip=True)
-            self.svg.Arc(*link, 2)
+            self.svg.Arc(*link, 2, flip=True)
+#            self.svg.Arc(*link, 2)
 
 
 class SVG(object):
@@ -102,13 +102,17 @@ class SVG(object):
 
 if __name__ == "__main__":
     import argparse
+    import subprocess
+    import time
 
     parser = argparse.ArgumentParser()
     parser.add_argument('expression', type=str)
 
     args = parser.parse_args()
 
-    svg = SVG('test.svg', 400, 400)
+    svg = SVG('{}.svg'.format(args.expression), 400, 400)
     rune = Rune(svg, 200, 200, 150, args.expression)
     rune.draw()
     svg.write()
+
+    subprocess.run("gio open {}.svg".format(args.expression).split())
