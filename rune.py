@@ -40,14 +40,14 @@ class Node(object):
 
 class Head(NodeRing):
     def draw(self, svg):
-        svg.Circ(self.cx, self.cy, self.r, 2) # Head circ
+        svg.Circ(self.cx, self.cy, self.r, 3) # Head circ
         svg.Poly(self.nodes, 1) # Inscribed polygon
-        svg.Circ(self.nodes[0].cx, self.nodes[0].cy, 10, 2) # Start node circ
+        svg.Circ(self.nodes[0].cx, self.nodes[0].cy, 10, 3) # Start node circ
 
 
 class Body(NodeRing):
     def draw(self, svg):
-        svg.Circ(self.cx, self.cy, self.r, 2) # Body circ
+        svg.Circ(self.cx, self.cy, self.r, 3) # Body circ
         svg.Poly(self.nodes, 1) # Inscribed polygon
 
 
@@ -69,8 +69,8 @@ class Rune(object):
         self.head.draw(self.svg)
         self.body.draw(self.svg)
         for link in self.links:
-            self.svg.Arc(*link, 2, flip=True)
-#            self.svg.Arc(*link, 2)
+#            self.svg.Arc(*link, 3, flip=True)
+            self.svg.Arc(*link, 3)
 
 
 class SVG(object):
@@ -91,7 +91,7 @@ class SVG(object):
         self.lines.append('<polygon points="{}" fill="none" stroke="black" stroke-width="{}"/>\n'.format(ptstr, sw))
 
     def Arc(self, nodeA, nodeB, sw, flip=False):
-        d = np.sqrt((nodeB.cx - nodeA.cx)**2 + (nodeB.cy - nodeA.cy)**2)/1.5
+        d = np.sqrt((nodeB.cx - nodeA.cx)**2 + (nodeB.cy - nodeA.cy)**2)
         self.lines.append('<path d="M {} {} A {} {} 0 0 {} {} {}" stroke-width="{}" stroke="black" fill="none"/>\n'.format(nodeA.cx, nodeA.cy, d, d, int(flip), nodeB.cx, nodeB.cy, sw))
 
     def write(self):
