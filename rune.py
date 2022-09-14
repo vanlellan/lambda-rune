@@ -108,6 +108,8 @@ class Rune(object):
         self.head.draw(self.svg)
         self.body.draw(self.svg)
         for link in self.head.links:
+            # if (some condition regarding the position of nodes)
+            #     set curvature, flip parameters to optimize position
             self.svg.Arc(*link, 3, flip=True)
         for parenthesis in self.body.parentheses:
             self.svg.Arc(*parenthesis, 1)
@@ -116,17 +118,26 @@ class Rune(object):
 if __name__ == "__main__":
     import argparse
     import subprocess
-    import time
+    import platform
     from svgutils import SVG
 
+    # Parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('expression', type=str)
-
     args = parser.parse_args()
 
+    # Create SVG canvas, render rune, write out the file
     svg = SVG('{}.svg'.format(args.expression), 400, 400)
     rune = Rune(svg, 200, 200, 150, args.expression)
     rune.draw()
     svg.write()
 
-    subprocess.run("gio open {}.svg".format(args.expression).split())
+    # Open the saved SVG file from the command line to display the image
+    if platform.system() == "Windows":
+        import os
+        os.startfile("{}.svg".format(args.expression).split())
+    elif platform.system() == "Darwin":
+        subprocess.run("open {}.svg".format(args.expression).split())
+    else:
+        subprocess.run("xdg-open {}.svg".format(args.expression).split())
+        

@@ -17,8 +17,8 @@ class SVG(object):
         ptstr = " ".join(["{},{}".format(n.cx, n.cy) for n in nodes])
         self.lines.append('<polygon points="{}" fill="none" stroke="black" stroke-width="{}"/>\n'.format(ptstr, sw))
 
-    def Arc(self, nodeA, nodeB, sw, flip=False):
-        d = np.sqrt((nodeB.cx - nodeA.cx)**2 + (nodeB.cy - nodeA.cy)**2)
+    def Arc(self, nodeA, nodeB, sw, flip=False, curvature=1.):
+        d = np.sqrt((nodeB.cx - nodeA.cx)**2 + (nodeB.cy - nodeA.cy)**2)*curvature
         self.lines.append('<path d="M {} {} A {} {} 0 0 {} {} {}" stroke-width="{}" stroke="black" fill="none"/>\n'.format(nodeA.cx, nodeA.cy, d, d, int(flip), nodeB.cx, nodeB.cy, sw))
 
     def write(self):
