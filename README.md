@@ -3,7 +3,7 @@ A system for graphically representing the [Lambda Calculus](https://en.wikipedia
 
 For a simple test, try `python rune.py "Labc.babc"`.
 
-For something more complicated, try `"Lnfx.n[Lgh.hgf][Lu.x][Lu.u]"`.
+For something more complicated, try `python rune.py "Lnfx.n[Lgh.hgf][Lu.x][Lu.u]"`.
 
 How to read a rune
 ---
