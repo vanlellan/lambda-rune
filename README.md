@@ -1,8 +1,9 @@
 # lambda-rune
 A system for graphically representing the [Lambda Calculus](https://en.wikipedia.org/wiki/Lambda_calculus), a Turing-complete functional model of computation.
 
-For a simple test, try `python rune.py Labc.b(abc)`.
+For a simple test, try `python rune.py "Labc.babc"`.
 
+For something more complicated, try `"Lnfx.n[Lgh.hgf][Lu.x][Lu.u]"`.
 
 How to read a rune
 ---
