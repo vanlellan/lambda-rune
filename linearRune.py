@@ -14,7 +14,8 @@ class lambdaExpression:
 
     def __init__(self, string):
         self.string = string
-        self.head, predicate = self.string[2:-1].split(".")
+        self.checkExpression(string)
+        self.head, predicate = self.string[2:-1].split(".", 1)
         if " " in predicate:
             self.body, self.arg = predicate.split(" ")
         else:
@@ -23,6 +24,9 @@ class lambdaExpression:
         print("head = ", self.head)
         print("body = ", self.body)
         print("arg  = ", self.arg)
+
+        self.listifyBody()
+        print("BODY LIST = ", self.bodyList)
 
         self.headcount = len(self.head)
         self.bodyclean = self.body.replace("(","").replace(")","")
@@ -58,18 +62,34 @@ class lambdaExpression:
                 else:
                     pass
 
+    def listifyBody(self):
+        self.bodyList = []
+        braOpen = False
+        for i,s in enumerate(self.body):
+            if braOpen:
+                self.bodyList[-1] += s
+            else:
+                if s == "[":
+                    braOpen = True
+                    self.bodyList.append(s)
+                elif s == "]":
+                    braOpen = False
+                    self.bodyList[-1] += s
+                else:
+                    self.bodyList.append(s)
+
+    def checkExpression(self, aExp):
+        if aExp[:2] != "[L":
+            print("Invalid lambda expression syntax: must start with \"[L\".")
+            sys.exit(1)
+        if "." not in aExp:
+            print("Invalid lambda expression syntax: must contain '.'")
+            sys.exit(1)
+        if aExp[-1] != "]":
+            print("Invalid lambda expression syntax: must end with \"]\".")
+            sys.exit(1)
 
 lamex = sys.argv[1]
-if lamex[:2] != "[L":
-    print("Invalid lambda expression syntax: must start with \"[L\".")
-    sys.exit(1)
-if "." not in lamex:
-    print("Invalid lambda expression syntax: must contain '.'")
-    sys.exit(1)
-if lamex[-1] != "]":
-    print("Invalid lambda expression syntax: must end with \"]\".")
-    sys.exit(1)
-
 lamEx = lambdaExpression(lamex)
 
 width = 100*max(lamEx.headcount+1, lamEx.bodycount+1)
