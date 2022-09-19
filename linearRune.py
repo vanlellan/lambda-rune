@@ -10,22 +10,32 @@
     #a closing square bracket "]" delineates the end of the body of that lambda expression
 import sys
 
-class lambdaExpression:
+def listify(aString):
+    newList = []
+    braOpen = False
+    for i,s in enumerate(aString):
+        if braOpen:
+            if s == "]":
+                braOpen = False
+                newList[-1] += s
+            else:
+                newList[-1] += s
+        else:
+            if s == "[":
+                braOpen = True
+            newList.append(s)
+    return newList
 
+class lambdaExpression:
+    #assume that the input string represents a single, outer lambda expression
     def __init__(self, string):
         self.string = string
         self.checkExpression(string)
-        self.head, predicate = self.string[2:-1].split(".", 1)
-        if " " in predicate:
-            self.body, self.arg = predicate.split(" ")
-        else:
-            self.body = predicate
-            self.arg = ""
+        self.head, self.body = self.string[2:-1].split(".", 1)
         print("head = ", self.head)
         print("body = ", self.body)
-        print("arg  = ", self.arg)
 
-        self.listifyBody()
+        self.bodyList = listify(self.body)
         print("BODY LIST = ", self.bodyList)
 
         self.headcount = len(self.head)
@@ -62,22 +72,6 @@ class lambdaExpression:
                 else:
                     pass
 
-    def listifyBody(self):
-        self.bodyList = []
-        braOpen = False
-        for i,s in enumerate(self.body):
-            if braOpen:
-                self.bodyList[-1] += s
-            else:
-                if s == "[":
-                    braOpen = True
-                    self.bodyList.append(s)
-                elif s == "]":
-                    braOpen = False
-                    self.bodyList[-1] += s
-                else:
-                    self.bodyList.append(s)
-
     def checkExpression(self, aExp):
         if aExp[:2] != "[L":
             print("Invalid lambda expression syntax: must start with \"[L\".")
@@ -90,40 +84,52 @@ class lambdaExpression:
             sys.exit(1)
 
 lamex = sys.argv[1]
-lamEx = lambdaExpression(lamex)
+masterList = listify(lamex)
+print("masterList = ", masterList)
+masterList = [lambdaExpression(a) for a in masterList]  #assume outer expression is concatenation of lambda expressions
 
-width = 100*max(lamEx.headcount+1, lamEx.bodycount+1)
-height = 300
 
-staves = [(0, height/3, width, height/3), (0, 2*height/3, width, 2*height/3)]
-
-headSpace = width/(lamEx.headcount+1)
-bodySpace = width/(lamEx.bodycount+1)
-
-dots = []
-for i in range(lamEx.headcount):
-    dots.append(((i+1)*headSpace,height/3))
-for i in range(lamEx.bodycount):
-    dots.append(((i+1)*bodySpace,2*height/3))
-
-lines = []
-for i,a in enumerate(lamEx.head):
-    for b in lamEx.bodymatch[i]:
-        lines.append(((i+1)*headSpace,height/3,(b+1)*bodySpace,2*height/3))
-
-curves = []
-for i in lamEx.pairs:
-    curves.append(((i[0]+1)*bodySpace, 2*height/3,(i[1]+1)*bodySpace, 2*height/3))
-
+xstart = 0
 with open("output.svg","w") as f:
-    f.write(f"<svg width=\"{width}\" height=\"{height}\" viewBox=\"0 0 {width} {height}\">")
-    f.write(f"<rect fill=\"white\" stroke=\"black\" x=\"0\" y=\"0\" width=\"{width}\" height=\"{height}\"/>")
-    for a in staves:
-        f.write(f"<path d=\"M {a[0]} {a[1]} L {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"black\" />")
-    for a in lines:
-        f.write(f"<path d=\"M {a[0]} {a[1]} L {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"black\" />")
-    for a in curves:
-        f.write(f"<path d=\"M {a[0]} {a[1]} C {a[0]} {a[1]+0.25*(a[2]-a[0])} {a[2]} {a[3]+0.25*(a[2]-a[0])} {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"black\" fill-opacity=\"0\" />")
-    for a in dots:
-        f.write(f"<circle cx=\"{a[0]}\" cy=\"{a[1]}\" r=\"10\" fill=\"black\" />")
+    totalWidth = 100*sum([max(l.headcount+1, l.bodycount+1) for l in masterList])
+    height = 300
+    f.write(f"<svg width=\"{totalWidth}\" height=\"{height}\" viewBox=\"0 0 {totalWidth} {height}\">")
+    colorList = ["black", "red", "orange", "green", "blue"]
+    for j,lamEx in enumerate(masterList):
+        
+        myColor = colorList[j]
+
+        width = 100*max(lamEx.headcount+1, lamEx.bodycount+1)
+
+        staves = [(xstart, height/3, xstart+width, height/3), (xstart, 2*height/3, xstart+width, 2*height/3)]
+        
+        headSpace = width/(lamEx.headcount+1)
+        bodySpace = width/(lamEx.bodycount+1)
+        
+        dots = []
+        for i in range(lamEx.headcount):
+            dots.append((xstart+(i+1)*headSpace,height/3))
+        for i in range(lamEx.bodycount):
+            dots.append((xstart+(i+1)*bodySpace,2*height/3))
+        
+        lines = []
+        for i,a in enumerate(lamEx.head):
+            for b in lamEx.bodymatch[i]:
+                lines.append((xstart+(i+1)*headSpace,height/3,xstart+(b+1)*bodySpace,2*height/3))
+        
+        curves = []
+        for i in lamEx.pairs:
+            curves.append((xstart+(i[0]+1)*bodySpace, 2*height/3,xstart+(i[1]+1)*bodySpace, 2*height/3))
+       
+        f.write(f"<rect fill=\"white\" stroke=\"{myColor}\" x=\"0\" y=\"0\" width=\"{width}\" height=\"{height}\"/>")
+        for a in staves:
+            f.write(f"<path d=\"M {a[0]} {a[1]} L {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        for a in lines:
+            f.write(f"<path d=\"M {a[0]} {a[1]} L {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        for a in curves:
+            f.write(f"<path d=\"M {a[0]} {a[1]} C {a[0]} {a[1]+0.25*(a[2]-a[0])} {a[2]} {a[3]+0.25*(a[2]-a[0])} {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"{myColor}\" fill-opacity=\"0\" />")
+        for a in dots:
+            f.write(f"<circle cx=\"{a[0]}\" cy=\"{a[1]}\" r=\"10\" fill=\"{myColor}\" />")
+        xstart += width
+
     f.write(f"</svg>")
