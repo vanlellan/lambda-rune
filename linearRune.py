@@ -5,13 +5,16 @@
 #with this version, let's try accommodating one level of internal lambda expressions
 #let me first enclose all internal lambda expressions with []
 
+#NOTES:
+    #all lambdas ("L") must be immediately preceded by an opening square bracket "["
+    #a closing square bracket "]" delineates the end of the body of that lambda expression
 import sys
 
 class lambdaExpression:
 
     def __init__(self, string):
         self.string = string
-        self.head, predicate = self.string[1:].split(".")
+        self.head, predicate = self.string[2:-1].split(".")
         if " " in predicate:
             self.body, self.arg = predicate.split(" ")
         else:
@@ -57,11 +60,14 @@ class lambdaExpression:
 
 
 lamex = sys.argv[1]
-if lamex[0] != "L":
-    print("Invalid lambda expression syntax: must start with L.")
+if lamex[:2] != "[L":
+    print("Invalid lambda expression syntax: must start with \"[L\".")
     sys.exit(1)
 if "." not in lamex:
     print("Invalid lambda expression syntax: must contain '.'")
+    sys.exit(1)
+if lamex[-1] != "]":
+    print("Invalid lambda expression syntax: must end with \"]\".")
     sys.exit(1)
 
 lamEx = lambdaExpression(lamex)
