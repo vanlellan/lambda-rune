@@ -12,18 +12,16 @@ import sys
 
 def listify(aString):
     newList = []
-    braOpen = False
+    braOpen = 0
     for i,s in enumerate(aString):
-        if braOpen:
-            if s == "]":
-                braOpen = False
-                newList[-1] += s
-            else:
-                newList[-1] += s
-        else:
-            if s == "[":
-                braOpen = True
+        if braOpen == 0:
             newList.append(s)
+        else:
+            newList[-1] += s
+        if s == "[":
+            braOpen += 1
+        if s == "]":
+            braOpen -= 1
     return newList
 
 class lambdaExpression:
@@ -95,7 +93,7 @@ with open("output.svg","w") as f:
     height = 300
     f.write(f"<svg width=\"{totalWidth}\" height=\"{height}\" viewBox=\"0 0 {totalWidth} {height}\">")
     f.write(f"<rect fill=\"white\" stroke=\"black\" x=\"0\" y=\"0\" width=\"{totalWidth}\" height=\"{height}\"/>")
-    colorList = ["black", "red", "orange", "green", "blue"]
+    colorList = ["black", "black", "black", "red", "orange", "green", "blue"]
     for j,lamEx in enumerate(masterList):
         
         myColor = colorList[j]
