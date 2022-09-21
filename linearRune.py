@@ -10,7 +10,7 @@
     #a closing square bracket "]" delineates the end of the body of that lambda expression
 import sys
 
-def listify(aString):
+def listify(aString, body=False):
     newList = []
     braOpen = 0
     for i,s in enumerate(aString):
@@ -22,6 +22,10 @@ def listify(aString):
             braOpen += 1
         if s == "]":
             braOpen -= 1
+    if body:
+        for j,e in enumerate(newList):
+            if len(e) > 1:
+                newList[j] = lambdaExpression(e)
     return newList
 
 class lambdaExpression:
@@ -33,12 +37,15 @@ class lambdaExpression:
         print("head = ", self.head)
         print("body = ", self.body)
 
-        self.bodyList = listify(self.body)
+        self.headList = list(self.head)
+        self.bodyList = listify(self.body, body=True)
         print("BODY LIST = ", self.bodyList)
+        self.bodyListClean = list(filter(lambda a: a not in "()", self.bodyList))
+        print(f"bodyListClean = {self.bodyListClean}")
 
         self.headcount = len(self.head)
         self.bodyclean = self.body.replace("(","").replace(")","")
-        self.bodycount = len(self.bodyclean)
+        self.bodycount = len(self.bodyListClean)
 
         self.bodymatch = []
         for a in self.head:
@@ -70,6 +77,12 @@ class lambdaExpression:
                 else:
                     pass
 
+    def __str__(self):
+        return f"L{self.headList}.{self.bodyList}"
+
+    def __repr__(self):
+        return f"L{self.headList}.{self.bodyList}"
+
     def checkExpression(self, aExp):
         if aExp[:2] != "[L":
             print("Invalid lambda expression syntax: must start with \"[L\".")
@@ -85,6 +98,7 @@ lamex = sys.argv[1]
 masterList = listify(lamex)
 print("masterList = ", masterList)
 masterList = [lambdaExpression(a) for a in masterList]  #assume outer expression is concatenation of lambda expressions
+print("masterList = ", masterList)
 
 
 xstart = 0
