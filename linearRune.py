@@ -10,7 +10,9 @@
     #a closing square bracket "]" delineates the end of the body of that lambda expression
 import sys
 
-def listify(aString, body=False):
+maxDepth = 0
+
+def listify(aString, body=False, currentDepth=1):
     newList = []
     braOpen = 0
     for i,s in enumerate(aString):
@@ -25,20 +27,23 @@ def listify(aString, body=False):
     if body:
         for j,e in enumerate(newList):
             if len(e) > 1:
-                newList[j] = lambdaExpression(e)
+                newList[j] = lambdaExpression(e, currentDepth+1)
     return newList
 
 class lambdaExpression:
     #assume that the input string represents a single, outer lambda expression
-    def __init__(self, string):
+    def __init__(self, string, depth):
         self.string = string
+        self.depth = depth
+        global maxDepth
+        maxDepth = max(maxDepth, self.depth)
         self.checkExpression(string)
         self.head, self.body = self.string[2:-1].split(".", 1)
         print("head = ", self.head)
         print("body = ", self.body)
 
         self.headList = list(self.head)
-        self.bodyList = listify(self.body, body=True)
+        self.bodyList = listify(self.body, body=True, currentDepth=self.depth)
         print("BODY LIST = ", self.bodyList)
         #HOLY ONE-LINER, BATMAN
         self.bodyListClean = list(filter(lambda a: a not in "()" if isinstance(a, str) else True, self.bodyList))
@@ -98,9 +103,9 @@ class lambdaExpression:
 lamex = sys.argv[1]
 masterList = listify(lamex)
 print("masterList = ", masterList)
-masterList = [lambdaExpression(a) for a in masterList]  #assume outer expression is concatenation of lambda expressions
+masterList = [lambdaExpression(a,1) for a in masterList]  #assume outer expression is concatenation of lambda expressions
 print("masterList = ", masterList)
-
+print(f"maxDepth = {maxDepth}")
 
 xstart = 0
 with open("output.svg","w") as f:
