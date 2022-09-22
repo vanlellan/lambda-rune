@@ -51,6 +51,10 @@ class lambdaExpression:
         self.bodyListClean = list(filter(lambda a: a not in "()" if isinstance(a, str) else True, self.bodyList))
         print(f"bodyListClean = {self.bodyListClean}")
 
+        #calculate self.totalWidth
+            #this should be max of head and body with, in node count, accounting for width of all sub-expressions in the body
+        #self.totalWidth = ---recursive getWidth call goes here---
+
         self.headcount = len(self.head)
         self.bodyclean = self.body.replace("(","").replace(")","")
         self.bodycount = len(self.bodyListClean)
@@ -116,6 +120,11 @@ with open("output.svg","w") as f:
     f.write(f"<svg width=\"{totalWidth}\" height=\"{height}\" viewBox=\"0 0 {totalWidth} {height}\">")
     f.write(f"<rect fill=\"white\" stroke=\"black\" x=\"0\" y=\"0\" width=\"{totalWidth}\" height=\"{height}\"/>")
     colorList = ["black", "black", "black", "red", "orange", "green", "blue"]
+    #need to replace this for loop with an element-by-element walk through masterList, drawing each element as we get to it
+        #build a node-dict during the walk (key:letter, value:(x,y)), and check the entire dict at each new node to draw connections
+        #start with a horizontal line
+            #draw method reads in starting position and outputs svg code with absolute positions
+                #depends on starting position, depth, totalWidth, head, body
     for j,lamEx in enumerate(masterList):
         
         myColor = colorList[j]
