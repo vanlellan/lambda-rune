@@ -40,7 +40,8 @@ class lambdaExpression:
         self.headList = list(self.head)
         self.bodyList = listify(self.body, body=True)
         print("BODY LIST = ", self.bodyList)
-        self.bodyListClean = list(filter(lambda a: a not in "()", self.bodyList))
+        #HOLY ONE-LINER, BATMAN
+        self.bodyListClean = list(filter(lambda a: a not in "()" if isinstance(a, str) else True, self.bodyList))
         print(f"bodyListClean = {self.bodyListClean}")
 
         self.headcount = len(self.head)
