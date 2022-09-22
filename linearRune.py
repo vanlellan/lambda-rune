@@ -27,14 +27,16 @@ def listify(aString, body=False, currentDepth=1):
     if body:
         for j,e in enumerate(newList):
             if len(e) > 1:
-                newList[j] = lambdaExpression(e, currentDepth+1)
+                newList[j] = lambdaExpression(e, currentDepth+1, j)
     return newList
 
 class lambdaExpression:
     #assume that the input string represents a single, outer lambda expression
-    def __init__(self, string, depth):
+    def __init__(self, string, depth, outerIndex):
         self.string = string
         self.depth = depth
+        self.outerIndex = outerIndex
+        print(f"outerIndex = {outerIndex}")
         global maxDepth
         maxDepth = max(maxDepth, self.depth)
         self.checkExpression(string)
@@ -103,7 +105,7 @@ class lambdaExpression:
 lamex = sys.argv[1]
 masterList = listify(lamex)
 print("masterList = ", masterList)
-masterList = [lambdaExpression(a,1) for a in masterList]  #assume outer expression is concatenation of lambda expressions
+masterList = [lambdaExpression(a,1,i) for i,a in enumerate(masterList)]  #assume outer expression is concatenation of lambda expressions
 print("masterList = ", masterList)
 print(f"maxDepth = {maxDepth}")
 
