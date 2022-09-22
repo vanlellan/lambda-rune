@@ -113,10 +113,12 @@ masterList = [lambdaExpression(a,1,i) for i,a in enumerate(masterList)]  #assume
 print("masterList = ", masterList)
 print(f"maxDepth = {maxDepth}")
 
-xstart = 0
+concatSep = 10
+xstart = concatSep
 with open("output.svg","w") as f:
-    totalWidth = 100*sum([max(l.headcount+1, l.bodycount+1) for l in masterList])
+    totalWidth = 100*sum([max(l.headcount+1, l.bodycount+1) for l in masterList])+concatSep*(len(masterList)+1)
     height = 300
+    ystart = height/2
     f.write(f"<svg width=\"{totalWidth}\" height=\"{height}\" viewBox=\"0 0 {totalWidth} {height}\">")
     f.write(f"<rect fill=\"white\" stroke=\"black\" x=\"0\" y=\"0\" width=\"{totalWidth}\" height=\"{height}\"/>")
     colorList = ["black", "black", "black", "red", "orange", "green", "blue"]
@@ -151,7 +153,11 @@ with open("output.svg","w") as f:
         for i in lamEx.pairs:
             curves.append((xstart+(i[0]+1)*bodySpace, 2*height/3,xstart+(i[1]+1)*bodySpace, 2*height/3))
        
-        f.write(f"<path d=\"M {xstart} {20} L {xstart} {height-20}\" stroke-width=\"2\" stroke=\"{myColor}\" />")
+        #f.write(f"<path d=\"M {xstart} {20} L {xstart} {height-20}\" stroke-width=\"2\" stroke=\"{myColor}\" />")
+        f.write(f"<path d=\"M {xstart-concatSep} {ystart} L {xstart} {ystart}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        f.write(f"<path d=\"M {xstart+width} {ystart} L {xstart+width+concatSep} {ystart}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        f.write(f"<path d=\"M {xstart} {ystart+height/6} L {xstart} {ystart-height/6}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        f.write(f"<path d=\"M {xstart+width} {ystart+height/6} L {xstart+width} {ystart-height/6}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
         for a in staves:
             f.write(f"<path d=\"M {a[0]} {a[1]} L {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
         for a in lines:
@@ -160,6 +166,6 @@ with open("output.svg","w") as f:
             f.write(f"<path d=\"M {a[0]} {a[1]} C {a[0]} {a[1]+0.25*(a[2]-a[0])} {a[2]} {a[3]+0.25*(a[2]-a[0])} {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"{myColor}\" fill-opacity=\"0\" />")
         for a in dots:
             f.write(f"<circle cx=\"{a[0]}\" cy=\"{a[1]}\" r=\"10\" fill=\"{myColor}\" />")
-        xstart += width
+        xstart += width+concatSep
 
     f.write(f"</svg>")
