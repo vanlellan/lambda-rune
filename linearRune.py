@@ -106,6 +106,10 @@ class lambdaExpression:
             print("Invalid lambda expression syntax: must end with \"]\".")
             sys.exit(1)
 
+    def draw(self, startP):
+        svgList = []
+
+
 lamex = sys.argv[1]
 masterList = listify(lamex)
 print("masterList = ", masterList)
@@ -114,50 +118,51 @@ print("masterList = ", masterList)
 print(f"maxDepth = {maxDepth}")
 
 concatSep = 10
+staffSep = 100
 xstart = concatSep
 with open("output.svg","w") as f:
     totalWidth = 100*sum([max(l.headcount+1, l.bodycount+1) for l in masterList])+concatSep*(len(masterList)+1)
-    height = 300
-    ystart = height/2
-    f.write(f"<svg width=\"{totalWidth}\" height=\"{height}\" viewBox=\"0 0 {totalWidth} {height}\">")
-    f.write(f"<rect fill=\"white\" stroke=\"black\" x=\"0\" y=\"0\" width=\"{totalWidth}\" height=\"{height}\"/>")
-    colorList = ["black", "black", "black", "red", "orange", "green", "blue"]
+    totalHeight = staffSep*(maxDepth+1)
+    ystart = totalHeight/2
+    f.write(f"<svg width=\"{totalWidth}\" totalHeight=\"{totalHeight}\" viewBox=\"0 0 {totalWidth} {totalHeight}\">")
+    f.write(f"<rect fill=\"white\" stroke=\"black\" x=\"0\" y=\"0\" width=\"{totalWidth}\" totalHeight=\"{totalHeight}\"/>")
     #need to replace this for loop with an element-by-element walk through masterList, drawing each element as we get to it
         #build a node-dict during the walk (key:letter, value:(x,y)), and check the entire dict at each new node to draw connections
         #start with a horizontal line
             #draw method reads in starting position and outputs svg code with absolute positions
                 #depends on starting position, depth, totalWidth, head, body
+        #nodes should be objects with a draw function, so drawing can be done recursively and nodes/expressions can be treated equally
     for j,lamEx in enumerate(masterList):
         
-        myColor = colorList[j]
+        myColor = "black" 
+        height = staffSep*(maxDepth-lamEx.depth+1)
 
         width = 100*max(lamEx.headcount+1, lamEx.bodycount+1)
 
-        staves = [(xstart, height/3, xstart+width, height/3), (xstart, 2*height/3, xstart+width, 2*height/3)]
+        staves = [(xstart, ystart-height/2, xstart+width, ystart-height/2), (xstart, ystart+height/2, xstart+width, ystart+height/2)]
         
         headSpace = width/(lamEx.headcount+1)
         bodySpace = width/(lamEx.bodycount+1)
         
         dots = []
         for i in range(lamEx.headcount):
-            dots.append((xstart+(i+1)*headSpace,height/3))
+            dots.append((xstart+(i+1)*headSpace,ystart-height/2))
         for i in range(lamEx.bodycount):
-            dots.append((xstart+(i+1)*bodySpace,2*height/3))
+            dots.append((xstart+(i+1)*bodySpace,ystart+height/2))
         
         lines = []
         for i,a in enumerate(lamEx.head):
             for b in lamEx.bodymatch[i]:
-                lines.append((xstart+(i+1)*headSpace,height/3,xstart+(b+1)*bodySpace,2*height/3))
+                lines.append((xstart+(i+1)*headSpace,ystart-height/2,xstart+(b+1)*bodySpace,ystart+height/2))
         
         curves = []
         for i in lamEx.pairs:
-            curves.append((xstart+(i[0]+1)*bodySpace, 2*height/3,xstart+(i[1]+1)*bodySpace, 2*height/3))
+            curves.append((xstart+(i[0]+1)*bodySpace, ystart+height/2,xstart+(i[1]+1)*bodySpace, ystart+height/2))
        
-        #f.write(f"<path d=\"M {xstart} {20} L {xstart} {height-20}\" stroke-width=\"2\" stroke=\"{myColor}\" />")
         f.write(f"<path d=\"M {xstart-concatSep} {ystart} L {xstart} {ystart}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
         f.write(f"<path d=\"M {xstart+width} {ystart} L {xstart+width+concatSep} {ystart}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
-        f.write(f"<path d=\"M {xstart} {ystart+height/6} L {xstart} {ystart-height/6}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
-        f.write(f"<path d=\"M {xstart+width} {ystart+height/6} L {xstart+width} {ystart-height/6}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        f.write(f"<path d=\"M {xstart} {ystart+height/2} L {xstart} {ystart-height/2}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
+        f.write(f"<path d=\"M {xstart+width} {ystart+height/2} L {xstart+width} {ystart-height/2}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
         for a in staves:
             f.write(f"<path d=\"M {a[0]} {a[1]} L {a[2]} {a[3]}\" stroke-width=\"4\" stroke=\"{myColor}\" />")
         for a in lines:
